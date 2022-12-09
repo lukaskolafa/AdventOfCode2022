@@ -1,7 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using System.Runtime.Serialization;
-
 var allLines = File.ReadAllLines(@"c:\temp\input.txt");
 
 int width = allLines[0].Length;
