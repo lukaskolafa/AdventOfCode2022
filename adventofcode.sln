@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp11-Monkeys", "Con
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp12-Signal", "ConsoleApp12-Signal\ConsoleApp12-Signal.csproj", "{B5813C4D-0A63-4F52-A63B-38911FE8314B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp13-SignalLists", "ConsoleApp13-SignalLists\ConsoleApp13-SignalLists.csproj", "{8BA98850-3FA0-4DB8-A466-9038254514A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{B5813C4D-0A63-4F52-A63B-38911FE8314B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5813C4D-0A63-4F52-A63B-38911FE8314B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5813C4D-0A63-4F52-A63B-38911FE8314B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BA98850-3FA0-4DB8-A466-9038254514A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BA98850-3FA0-4DB8-A466-9038254514A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BA98850-3FA0-4DB8-A466-9038254514A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BA98850-3FA0-4DB8-A466-9038254514A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
