@@ -5,8 +5,9 @@ using System.Text;
 
 string[] allLines = File.ReadAllLines(@"c:\temp\input.txt");
 
-long rocksLimit = 1000_000_000_000;
-Queue<Line> space = new Queue<Line>();
+long rocksLimit = 2022;
+
+Line[] space = new Line[300];
 
 IList<Direction> winds = allLines.Single().Select(x => x == '<' ? Direction.Left : Direction.Right).ToArray();
 IList<Shape> shapes = Shape.GetShapes();
@@ -19,6 +20,9 @@ int activeAreaHeight = 0;
 
 int removedLines = 0;
 
+int currentHeight = 0;
+
+InitLines();
 PlaceBottom();
 
 Stopwatch sw = Stopwatch.StartNew();
@@ -31,7 +35,7 @@ for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
 
     if (rocksCounter % 1_000_000 == 0)
     {
-        Console.WriteLine(sw.Elapsed.TotalSeconds + " Counter: " + rocksCounter + " Size: " + space.Count);
+        Console.WriteLine(sw.Elapsed.TotalSeconds + " Counter: " + rocksCounter);
     }
 
     while (true)
@@ -60,21 +64,13 @@ for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
             break;
         }
     }
-
-    CleanEmptyLines();
 }
 
-int currentHeight = space.Count;
 Console.WriteLine(currentHeight - 1 + removedLines);
 
 Line[] GetActiveArea()
 {
-    return space.ToArray().Skip(activeAreaIndex).Take(activeAreaHeight).ToArray();
-}
-
-void CleanEmptyLines()
-{
-    space = new Queue<Line>(space.Where(l => !l.IsEmpty));
+    return space.Skip(activeAreaIndex).Take(activeAreaHeight).ToArray();
 }
 
 void OptimizeHeight(Line[] activeArea)
@@ -90,12 +86,19 @@ void OptimizeHeight(Line[] activeArea)
     {
         var linesToRemove = activeAreaIndex;
 
-        for (int i = 0; i < linesToRemove; i++)
-        {
-            _ = space.Dequeue();
+        removedLines += linesToRemove;
+        currentHeight -= linesToRemove;
+        activeAreaIndex -= linesToRemove;
 
-            removedLines++;
+        // Reuse same instances, roll over = speed optimize
+        var reusal = space.Take(linesToRemove).ToArray();
+
+        foreach (var line in reusal)
+        {
+            line.Rock = 0;
         }
+
+        space = space.Skip(linesToRemove).Concat(space.Take(linesToRemove)).ToArray();
     }
 }
 
@@ -105,6 +108,19 @@ void HardenFallingObject(Line[] activeArea)
     {
         line.Rock = (byte)(line.Rock | line.Falling);
         line.Falling = 0;
+    }
+
+    while (true)
+    {
+        if (space[currentHeight].Rock > 0)
+        {
+            currentHeight++;
+        }
+        else
+        {
+            break;
+        }
+
     }
 }
 
@@ -190,23 +206,31 @@ void PlaceNewShape(int shapeIndex)
 {
     var shape = shapes[shapeIndex];
 
-    space.Enqueue(new Line());
-    space.Enqueue(new Line());
-    space.Enqueue(new Line());
-
+    byte aboveTopPlacement = 3;
     foreach (var shapeLine in shape.Rock)
     {
-        space.Enqueue(new Line { Falling = shapeLine });
+        space[currentHeight + aboveTopPlacement].Falling = shapeLine;
+        aboveTopPlacement++;
     }
 
-    activeAreaIndex = space.Count - shape.Rock.Length - 1; // we need to see one line in front of us => - 1
+    activeAreaIndex = currentHeight + 2; // we need to see one line in front of us, so take 3 - 1
     activeAreaHeight = shape.Rock.Length + 1; // we need to see one line in front of us => + 1
+}
+
+void InitLines()
+{
+    for (int i = 0; i < space.Length; i++)
+    {
+        space[i] = new Line();
+    }
 }
 
 void PlaceBottom()
 {
-    Line bottom = new Line { Rock = 127, Falling = 0 };
-    space.Enqueue(bottom);
+    space[currentHeight].Rock = 127;
+    space[currentHeight].Falling = 0;
+
+    currentHeight = 1;
 }
 
 string PrintLine(Line line)
