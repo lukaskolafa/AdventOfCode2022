@@ -1,7 +1,5 @@
 ﻿public class Shape
 {
-    public static int Width = 4;
-
     private Shape()
     {
     }
@@ -10,9 +8,9 @@
     {
         return new Shape
         {
-            Rock = new[]
+            Rock = new byte[]
             {
-                new[] { true, true, true, true }
+                30
             }
         };
     }
@@ -21,11 +19,11 @@
     {
         return new Shape
         {
-            Rock = new[]
+            Rock = new byte[]
             {
-                new[] { false, true, false, false },
-                new[] { true, true, true, false },
-                new[] { false, true, false, false }
+                8,
+                28,
+                8
             }
         };
     }
@@ -34,11 +32,12 @@
     {
         return new Shape
         {
-            Rock = new[]
+            Rock = new byte[]
             {
-                new[] { false, false, true, false },
-                new[] { false, false, true, false },
-                new[] { true, true, true, false }
+                // The order is reversed to speed up placement upside down
+                28,
+                4,
+                4
             }
         };
     }
@@ -47,12 +46,12 @@
     {
         return new Shape
         {
-            Rock = new[]
+            Rock = new byte[]
             {
-               new[] { true, false, false, false },
-               new[] { true, false, false, false },
-               new[] { true, false, false, false },
-               new[] { true, false, false, false }
+               16,
+               16,
+               16,
+               16
             }
         };
     }
@@ -61,10 +60,10 @@
     {
         return new Shape
         {
-            Rock = new[]
+            Rock = new byte[]
             {
-                 new[] { true, true, false, false },
-                 new[] { true, true, false, false }
+                24,
+                24
             }
         };
     }
@@ -74,5 +73,5 @@
         return new[] { Get1(), Get2(), Get3(), Get4(), Get5() };
     }
 
-    public bool[][] Rock { get; private init; }
+    public byte[] Rock { get; private init; }
 }

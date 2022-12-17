@@ -3,10 +3,9 @@
 using System.Diagnostics;
 using System.Text;
 
-string[] allLines = File.ReadAllLines(@"c:\temp\input1.txt");
+string[] allLines = File.ReadAllLines(@"c:\temp\input.txt");
 
-int width = 7;
-long rocksLimit = 1000000000000;
+long rocksLimit = 1000_000_000_000;
 Queue<Line> space = new Queue<Line>();
 
 IList<Direction> winds = allLines.Single().Select(x => x == '<' ? Direction.Left : Direction.Right).ToArray();
@@ -28,12 +27,12 @@ for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
 {
     int rockIndex = (int)(rocksCounter % shapesCount);
 
-    if (rocksCounter % 10000 == 0)
-    {
-        Console.WriteLine(sw.Elapsed.TotalSeconds + " Counter: " + rocksCounter);
-    }
-
     PlaceNewShape(rockIndex);
+
+    if (rocksCounter % 1_000_000 == 0)
+    {
+        Console.WriteLine(sw.Elapsed.TotalSeconds + " Counter: " + rocksCounter + " Size: " + space.Count);
+    }
 
     while (true)
     {
@@ -55,7 +54,9 @@ for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
         else
         {
             HardenFallingObject(activeArea);
+
             OptimizeHeight(activeArea);
+
             break;
         }
     }
@@ -78,17 +79,11 @@ void CleanEmptyLines()
 
 void OptimizeHeight(Line[] activeArea)
 {
-    Line tester = new Line(width);
+    Line tester = new Line();
 
     foreach (var line in activeArea)
     {
-        for (int i = 0; i < line.Fields.Length; i++)
-        {
-            if (line.Fields[i] == Field.Final)
-            {
-                tester.Fields[i] = Field.Final;
-            }
-        }
+        tester.Rock = (byte)(tester.Rock | line.Rock);
     }
 
     if (tester.IsAllFinal)
@@ -108,54 +103,25 @@ void HardenFallingObject(Line[] activeArea)
 {
     foreach (var line in activeArea)
     {
-        for (int x = 0; x < line.Fields.Length; x++)
-        {
-            if (line.Fields[x] == Field.Falling)
-            {
-                line.Fields[x] = Field.Final;
-            }
-        }
+        line.Rock = (byte)(line.Rock | line.Falling);
+        line.Falling = 0;
     }
 }
 
 void MoveFallingObject(Direction direction, Line[] activeArea)
 {
-    if (direction == Direction.Left)
+    if (direction == Direction.Right)
     {
-        foreach (var line in activeArea)
+        foreach (Line movingLine in activeArea)
         {
-            for (int x = 0; x < line.Fields.Length - 1; x++)
-            {
-                if (line.Fields[x + 1] == Field.Falling)
-                {
-                    // if (line.Fields[x] != Field.Empty)
-                    // {
-                    //     throw new InvalidOperationException("Moving to nonempty space, check your logic");
-                    // }
-
-                    line.Fields[x] = Field.Falling;
-                    line.Fields[x + 1] = Field.Empty;
-                }
-            }
+            movingLine.Falling = (byte)(movingLine.Falling >> 1);
         }
     }
     else
     {
-        foreach (var line in activeArea)
+        foreach (Line movingLine in activeArea)
         {
-            for (int x = width - 1; x > 0; x--)
-            {
-                if (line.Fields[x - 1] == Field.Falling)
-                {
-                    // if (line.Fields[x] != Field.Empty)
-                    // {
-                    //     throw new InvalidOperationException("Moving to nonempty space, check your logic");
-                    // }
-
-                    line.Fields[x] = Field.Falling;
-                    line.Fields[x - 1] = Field.Empty;
-                }
-            }
+            movingLine.Falling = (byte)(movingLine.Falling << 1);
         }
     }
 }
@@ -164,19 +130,8 @@ void FallFallingObject(Line[] activeArea)
 {
     for (int y = 0; y < activeArea.Length - 1; y++)
     {
-        for (int x = 0; x < activeArea[y].Fields.Length; x++)
-        {
-            if (activeArea[y + 1].Fields[x] == Field.Falling)
-            {
-                // if (activeArea[y].Fields[x] != Field.Empty)
-                // {
-                //     throw new InvalidOperationException("Moving to nonempty space, check your logic");
-                // }
-
-                activeArea[y].Fields[x] = Field.Falling;
-                activeArea[y + 1].Fields[x] = Field.Empty;
-            }
-        }
+        activeArea[y].Falling = activeArea[y + 1].Falling;
+        activeArea[y + 1].Falling = 0;
     }
 
     activeAreaIndex -= 1;
@@ -186,15 +141,9 @@ bool PossibleToFall(Line[] activeArea)
 {
     for (int y = 1; y < activeArea.Length; y++)
     {
-        for (int x = 0; x < activeArea[y].Fields.Length; x++)
+        if ((activeArea[y].Falling & activeArea[y - 1].Rock) > 0)
         {
-            if (activeArea[y].Fields[x] == Field.Falling)
-            {
-                if (activeArea[y - 1].Fields[x] == Field.Final)
-                {
-                    return false;
-                }
-            }
+            return false;
         }
     }
 
@@ -203,40 +152,33 @@ bool PossibleToFall(Line[] activeArea)
 
 bool PossibleToMove(Direction direction, Line[] activeArea)
 {
-    foreach (Line movingLine in activeArea)
+    if (direction == Direction.Right)
     {
-        for (int i = 0; i < width; i++)
+        foreach (Line movingLine in activeArea)
         {
-            if (movingLine.Fields[i] == Field.Falling)
+            if ((movingLine.Falling & 1) > 0)
             {
-                if (direction == Direction.Left)
-                {
-                    if (i == 0)
-                    {
-                        // cannot move, too far left
-                        return false;
-                    }
+                return false;
+            }
 
-                    if (movingLine.Fields[i - 1] == Field.Final)
-                    {
-                        // cannot move, rock
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (i == width - 1)
-                    {
-                        // cannot move, too far right
-                        return false;
-                    }
+            if (((movingLine.Falling >> 1) & movingLine.Rock) > 0)
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        foreach (Line movingLine in activeArea)
+        {
+            if ((movingLine.Falling & 64) > 0)
+            {
+                return false;
+            }
 
-                    if (movingLine.Fields[i + 1] == Field.Final)
-                    {
-                        // cannot move, rock
-                        return false;
-                    }
-                }
+            if (((movingLine.Falling << 1) & movingLine.Rock) > 0)
+            {
+                return false;
             }
         }
     }
@@ -248,21 +190,13 @@ void PlaceNewShape(int shapeIndex)
 {
     var shape = shapes[shapeIndex];
 
-    space.Enqueue(new Line(width));
-    space.Enqueue(new Line(width));
-    space.Enqueue(new Line(width));
+    space.Enqueue(new Line());
+    space.Enqueue(new Line());
+    space.Enqueue(new Line());
 
-    for (int y = 0; y < shape.Rock.Length; y++)
+    foreach (var shapeLine in shape.Rock)
     {
-        Line line = new Line(width);
-
-        for (int x = 0; x < Shape.Width; x++)
-        {
-            // Shape Rock definition matrix is inverted and transposed due to human readable input!!
-            line.Fields[x + 2] = shape.Rock[shape.Rock.Length - y - 1][x] ? Field.Falling : Field.Empty;
-        }
-
-        space.Enqueue(line);
+        space.Enqueue(new Line { Falling = shapeLine });
     }
 
     activeAreaIndex = space.Count - shape.Rock.Length - 1; // we need to see one line in front of us => - 1
@@ -271,12 +205,7 @@ void PlaceNewShape(int shapeIndex)
 
 void PlaceBottom()
 {
-    Line bottom = new Line(width);
-    for(int i = 0; i < width; i++)
-    {
-        bottom.Fields[i] = Field.Final;
-    }
-
+    Line bottom = new Line { Rock = 127, Falling = 0 };
     space.Enqueue(bottom);
 }
 
@@ -284,21 +213,19 @@ string PrintLine(Line line)
 {
     StringBuilder sb = new StringBuilder();
 
-    for (int x = 0; x < width; x++)
+    for (int x = 64; x > 0; x >>= 1)
     {
-        switch (line.Fields[x])
+        if ((line.Falling & x) > 0)
         {
-            case Field.Empty:
-                sb.Append(".");
-                break;
-            case Field.Falling:
-                sb.Append("@");
-                break;
-            case Field.Final:
-                sb.Append("#");
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            sb.Append("@");
+        }
+        else if ((line.Rock & x) > 0)
+        {
+            sb.Append("#");
+        }
+        else
+        {
+            sb.Append(".");
         }
     }
 

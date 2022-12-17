@@ -1,13 +1,16 @@
 ﻿public class Line
 {
-    public Line(int width)
+    public Line()
     {
-        Fields = new Field[width];
+        Rock = 0;
+        Falling = 0;
     }
 
-    public Field[] Fields { get; set; }
+    public byte Rock { get; set; }
 
-    public bool IsEmpty => this.Fields.All(f => f == Field.Empty);
+    public byte Falling { get; set; }
 
-    public bool IsAllFinal => this.Fields.All(f => f == Field.Final);
+    public bool IsEmpty => (Rock | Falling) == 0;
+
+    public bool IsAllFinal => (Rock & 127) == 127;
 }
