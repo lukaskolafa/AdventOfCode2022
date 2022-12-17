@@ -1,11 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Diagnostics;
 using System.Text;
 
-string[] allLines = File.ReadAllLines(@"c:\temp\input.txt");
+string[] allLines = File.ReadAllLines(@"c:\temp\input1.txt");
 
 int width = 7;
-long rocksLimit = 2022;
+long rocksLimit = 1000000000000;
 Queue<Line> space = new Queue<Line>();
 
 IList<Direction> winds = allLines.Single().Select(x => x == '<' ? Direction.Left : Direction.Right).ToArray();
@@ -17,25 +18,25 @@ int shapesCount = shapes.Count;
 int activeAreaIndex = 0;
 int activeAreaHeight = 0;
 
-int currentHeight = 0;
+int removedLines = 0;
 
 PlaceBottom();
+
+Stopwatch sw = Stopwatch.StartNew();
 
 for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
 {
     int rockIndex = (int)(rocksCounter % shapesCount);
 
-    if (rocksCounter % 100 == 0)
+    if (rocksCounter % 10000 == 0)
     {
-        Console.WriteLine(rocksCounter);
+        Console.WriteLine(sw.Elapsed.TotalSeconds + " Counter: " + rocksCounter);
     }
 
     PlaceNewShape(rockIndex);
 
     while (true)
     {
-        PrintOutput();
-
         Direction windDirection = winds[moveCounter % winds.Count];
 
         Line[] activeArea = GetActiveArea();
@@ -54,18 +55,16 @@ for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
         else
         {
             HardenFallingObject(activeArea);
+            OptimizeHeight(activeArea);
             break;
         }
     }
 
     CleanEmptyLines();
-
-    PrintOutput();
 }
 
-currentHeight = space.Count;
-
-Console.WriteLine(currentHeight - 1);
+int currentHeight = space.Count;
+Console.WriteLine(currentHeight - 1 + removedLines);
 
 Line[] GetActiveArea()
 {
@@ -75,6 +74,34 @@ Line[] GetActiveArea()
 void CleanEmptyLines()
 {
     space = new Queue<Line>(space.Where(l => !l.IsEmpty));
+}
+
+void OptimizeHeight(Line[] activeArea)
+{
+    Line tester = new Line(width);
+
+    foreach (var line in activeArea)
+    {
+        for (int i = 0; i < line.Fields.Length; i++)
+        {
+            if (line.Fields[i] == Field.Final)
+            {
+                tester.Fields[i] = Field.Final;
+            }
+        }
+    }
+
+    if (tester.IsAllFinal)
+    {
+        var linesToRemove = activeAreaIndex;
+
+        for (int i = 0; i < linesToRemove; i++)
+        {
+            _ = space.Dequeue();
+
+            removedLines++;
+        }
+    }
 }
 
 void HardenFallingObject(Line[] activeArea)
@@ -303,8 +330,6 @@ string PrintSpace()
 
 void PrintOutput()
 {
-    return;
-
     string output = PrintSpace();
 
     Console.Clear();
