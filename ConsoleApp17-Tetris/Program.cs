@@ -5,7 +5,21 @@ using System.Text;
 
 string[] allLines = File.ReadAllLines(@"c:\temp\input.txt");
 
-long rocksLimit = 2022;
+// 17608795 = 349 * 5 * 10091
+// 349 is magic repeat factor
+// 5 is count of shapes
+// 10091 is count if winds
+
+// after certain period, this amount of rocks increases height by 27_770_432
+long magicRepeat = (long)349 * 5 * 10091;
+
+long shortcutCycles = 56_785;
+
+long rocksLimit = 1_000_000_000_000 - magicRepeat * shortcutCycles;
+
+
+// final result = 133382795 + (56_785 * 27_770_432)
+
 
 Line[] space = new Line[300];
 
@@ -18,7 +32,7 @@ int shapesCount = shapes.Count;
 int activeAreaIndex = 0;
 int activeAreaHeight = 0;
 
-int removedLines = 0;
+long removedLines = 0;
 
 int currentHeight = 0;
 
@@ -27,15 +41,39 @@ PlaceBottom();
 
 Stopwatch sw = Stopwatch.StartNew();
 
+long lastHeight = 0;
+long lastHeightJumps = 0;
+
+File.Delete("c:\\temp\\output1.txt");
+
 for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
 {
     int rockIndex = (int)(rocksCounter % shapesCount);
 
     PlaceNewShape(rockIndex);
 
-    if (rocksCounter % 1_000_000 == 0)
+    // Use this to find repeat cycles => 349
+    // and height increase => 27_770_432
+    //
+    // if (rocksCounter % (shapesCount * winds.Count) == 0)
+    // {
+    //     var last = lastHeight;
+    //     lastHeight = GetHeight();
+    //
+    //     File.AppendAllText("c:\\temp\\output.txt", "Increase: " + (lastHeight - last) + "\n");
+    // }
+
+    if (rocksCounter % magicRepeat == 0)
     {
-        Console.WriteLine(sw.Elapsed.TotalSeconds + " Counter: " + rocksCounter);
+        var last = lastHeightJumps;
+        lastHeightJumps = GetHeight();
+
+        File.AppendAllText("c:\\temp\\output1.txt", "Increase: " + (lastHeight - last) + " Total Height: " + lastHeightJumps + " rocksCounter: " + rocksCounter + "\n");
+    }
+
+    if (rocksCounter % 1_000_000 == 0 && rocksCounter != 0)
+    {
+        Console.WriteLine(sw.Elapsed.TotalSeconds + " Counter: " + rocksCounter + " Height: " + GetHeight());
     }
 
     while (true)
@@ -66,11 +104,16 @@ for (long rocksCounter = 0; rocksCounter < rocksLimit; rocksCounter++)
     }
 }
 
-Console.WriteLine(currentHeight - 1 + removedLines);
+Console.WriteLine(GetHeight());
 
 Line[] GetActiveArea()
 {
     return space.Skip(activeAreaIndex).Take(activeAreaHeight).ToArray();
+}
+
+long GetHeight()
+{
+    return currentHeight - 1 + removedLines;
 }
 
 void OptimizeHeight(Line[] activeArea)
