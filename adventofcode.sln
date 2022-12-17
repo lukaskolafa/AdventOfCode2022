@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp14-Sand", "Consol
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp15-Beacon", "ConsoleApp15-Beacon\ConsoleApp15-Beacon.csproj", "{7B8D1225-EF3A-4C55-8B1A-A5DE07470C0E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp16-ValvesAndTunnels", "ConsoleApp16-ValvesAndTunnels\ConsoleApp16-ValvesAndTunnels.csproj", "{A7DB9009-670B-4F33-8EA7-E1FB129F7B07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +86,9 @@ Global
 		{7B8D1225-EF3A-4C55-8B1A-A5DE07470C0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B8D1225-EF3A-4C55-8B1A-A5DE07470C0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B8D1225-EF3A-4C55-8B1A-A5DE07470C0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7DB9009-670B-4F33-8EA7-E1FB129F7B07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7DB9009-670B-4F33-8EA7-E1FB129F7B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7DB9009-670B-4F33-8EA7-E1FB129F7B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7DB9009-670B-4F33-8EA7-E1FB129F7B07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
