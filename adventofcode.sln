@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp16-ValvesAndTunne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp17-Tetris", "ConsoleApp17-Tetris\ConsoleApp17-Tetris.csproj", "{F68E685F-6805-4540-8613-6561A45CE3A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp18-Cubes", "ConsoleApp18-Cubes\ConsoleApp18-Cubes.csproj", "{4EC3ADF4-DE0E-4BEF-A95C-886CEC1A175A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,5 +98,9 @@ Global
 		{F68E685F-6805-4540-8613-6561A45CE3A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F68E685F-6805-4540-8613-6561A45CE3A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F68E685F-6805-4540-8613-6561A45CE3A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EC3ADF4-DE0E-4BEF-A95C-886CEC1A175A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EC3ADF4-DE0E-4BEF-A95C-886CEC1A175A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EC3ADF4-DE0E-4BEF-A95C-886CEC1A175A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EC3ADF4-DE0E-4BEF-A95C-886CEC1A175A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
