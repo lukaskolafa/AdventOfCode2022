@@ -21,4 +21,10 @@ public struct ProcessState
     public int GeodeRobotCount { get; set; }
 
     public Blueprint Blueprint { get; set; }
+
+    public bool BlockOreRobot { get; set; }
+
+    public bool BlockClayRobot { get; set; }
+
+    public bool BlockObsidianRobot { get; set; }
 }

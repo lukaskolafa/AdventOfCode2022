@@ -6,7 +6,7 @@ using ConsoleApp19_Blueprints;
 var parserRegex = new Regex(@"^Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian.");
 string[] allLines = File.ReadAllLines(@"c:\temp\input.txt");
 
-int maxTime = 24;
+int maxTime = 32;
 
 IList<Blueprint> blueprints = new List<Blueprint>(allLines.Length);
 
@@ -26,11 +26,11 @@ foreach (var line in allLines)
     });
 }
 
-var sum = 0;
+var sum = 1;
 
 IList<Task> tasks = new List<Task>();
 
-foreach (var blueprint in blueprints)
+foreach (var blueprint in blueprints.Take(3))
 {
     var task = Task.Run(() =>
     {
@@ -41,7 +41,7 @@ foreach (var blueprint in blueprints)
 
         Console.WriteLine($"Blueprint {blueprint.Index}: max geodes collected: {processMonitor.MaxCollectedGeodes}.");
 
-        sum += blueprint.Index * processMonitor.MaxCollectedGeodes;
+        sum *= processMonitor.MaxCollectedGeodes;
     });
 
     tasks.Add(task);
@@ -73,14 +73,13 @@ void MaximizeGeodes(ProcessState processState, ProcessMonitor processMonitor)
         return;
     }
 
-    var nextRoundBranches = GetNextRoundVariants(processState).ToArray();
+    var nextRoundBranches = GetNextRoundVariants(processState);
 
     foreach (var nextRoundBranch in nextRoundBranches)
     {
         MaximizeGeodes(nextRoundBranch, processMonitor);
     }
 }
-
 
 IEnumerable<ProcessState> GetNextRoundVariants(ProcessState processState)
 {
@@ -106,34 +105,60 @@ IEnumerable<ProcessState> GetNextRoundVariants(ProcessState processState)
         result.GeodeRobotCount++;
         result.OreCount -= processState.Blueprint.GeodeRobotOreCost;
         result.ObsidianCount -= processState.Blueprint.GeodeRobotObsidianCost;
+
+        result.BlockClayRobot = false;
+        result.BlockObsidianRobot = false;
+        result.BlockOreRobot = false;
+
         yield return result;
         yield break; // Do not create anything else if we can create a geode robot, nothing else could be faster
     }
 
-    if (canBuildObsidianRobot && shouldBuildObsidianRobot)
+    if (canBuildObsidianRobot && shouldBuildObsidianRobot && !processState.BlockObsidianRobot)
     {
         var result = processState;
         result.ObsidianRobotCount++;
         result.OreCount -= processState.Blueprint.ObsidianRobotOreCost;
         result.ClayCount -= processState.Blueprint.ObsidianRobotClayCost;
+
+        result.BlockClayRobot = false;
+        result.BlockObsidianRobot = false;
+        result.BlockOreRobot = false;
+
         yield return result;
     }
 
-    if (canBuildOreRobot && shouldBuildOreRobot)
+    if (canBuildOreRobot && shouldBuildOreRobot && !processState.BlockOreRobot)
     {
         var result = processState;
         result.OreRobotCount++;
         result.OreCount -= processState.Blueprint.OreRobotOreCost;
+
+        result.BlockClayRobot = false;
+        result.BlockObsidianRobot = false;
+        result.BlockOreRobot = false;
+
         yield return result;
     }
 
-    if (canBuildClayRobot && shouldBuildClayRobot)
+    if (canBuildClayRobot && shouldBuildClayRobot && !processState.BlockClayRobot)
     {
         var result = processState;
         result.ClayRobotCount++;
         result.OreCount -= processState.Blueprint.ClayRobotOreCost;
+
+        result.BlockClayRobot = false;
+        result.BlockObsidianRobot = false;
+        result.BlockOreRobot = false;
+
         yield return result;
     }
 
-    yield return processState; // This is the variant, if we did not build anything, await a better robot in next round
+    // This is the variant, if we did not build anything, await a better robot in next round
+    // We block in the next round the robot, we could build in this round already
+    processState.BlockClayRobot = canBuildClayRobot;
+    processState.BlockObsidianRobot = canBuildObsidianRobot;
+    processState.BlockOreRobot = canBuildOreRobot;
+
+    yield return processState;
 }
