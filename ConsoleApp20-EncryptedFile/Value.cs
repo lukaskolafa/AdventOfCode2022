@@ -1,8 +1,10 @@
 ﻿public class Value
 {
+    public Value Next { get; set; }
+
+    public Value Previous { get; set; }
+
     public int OriginalPosition { get; set; }
 
-    public int CurrentPosition { get; set; }
-
-    public int Number { get; set; }
+    public long Number { get; set; }
 }
